@@ -184,7 +184,7 @@ func FlagFromRemote(info *HostInfo, argString string) error {
 	fs.StringVar(&PortsFile, "pf", "", GetText("flag_ports_file"))
 
 	fs.StringVar(&ScanMode, "m", "all", GetText("flag_scan_mode"))
-	fs.IntVar(&ThreadNum, "t", 10, GetText("flag_thread_num"))
+	fs.IntVar(&ThreadNum, "t", 600, GetText("flag_thread_num"))
 	fs.Int64Var(&Timeout, "time", 3, GetText("flag_timeout"))
 	fs.IntVar(&ModuleThreadNum, "mt", 10, GetText("flag_module_thread_num"))
 	fs.Int64Var(&GlobalTimeout, "gt", 180, GetText("flag_global_timeout"))
