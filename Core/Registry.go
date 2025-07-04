@@ -1,9 +1,10 @@
 package Core
 
 import (
+	"sort"
+
 	"github.com/shadow1ng/fscan/Common"
 	"github.com/shadow1ng/fscan/Plugins"
-	"sort"
 )
 
 // init 初始化并注册所有扫描插件
@@ -32,7 +33,7 @@ func init() {
 		Types:    []string{Common.PluginTypeService},
 	})
 
-	// Windows网络服务
+	// Windows 网络服务
 	Common.RegisterPlugin("findnet", Common.ScanPlugin{
 		Name:     "FindNet",
 		Ports:    []int{135},
@@ -158,7 +159,7 @@ func init() {
 		Types:    []string{Common.PluginTypeService},
 	})
 
-	// NoSQL数据库
+	// NoSQL 数据库
 	Common.RegisterPlugin("cassandra", Common.ScanPlugin{
 		Name:     "Cassandra",
 		Ports:    []int{9042},
@@ -217,13 +218,6 @@ func init() {
 		Types:    []string{Common.PluginTypeService},
 	})
 
-	// 2. 特殊漏洞扫描插件
-	Common.RegisterPlugin("ms17010", Common.ScanPlugin{
-		Name:     "MS17010",
-		Ports:    []int{445},
-		ScanFunc: Plugins.MS17010,
-		Types:    []string{Common.PluginTypeService},
-	})
 
 	Common.RegisterPlugin("smbghost", Common.ScanPlugin{
 		Name:     "SMBGhost",
@@ -232,7 +226,7 @@ func init() {
 		Types:    []string{Common.PluginTypeService},
 	})
 
-	// 3. Web应用扫描插件
+	// 3. Web 应用扫描插件
 	Common.RegisterPlugin("webtitle", Common.ScanPlugin{
 		Name:     "WebTitle",
 		Ports:    Common.ParsePortsFromString(Common.WebPorts),
@@ -247,7 +241,7 @@ func init() {
 		Types:    []string{Common.PluginTypeWeb},
 	})
 
-	// 4. Windows系统专用插件
+	// 4. Windows 系统专用插件
 	Common.RegisterPlugin("smb2", Common.ScanPlugin{
 		Name:     "SMBScan2",
 		Ports:    []int{445},
