@@ -4,10 +4,11 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	"github.com/shadow1ng/fscan/Common"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/shadow1ng/fscan/Common"
 )
 
 var (
@@ -262,9 +263,9 @@ func MS17010Scan(info *Common.HostInfo) error {
 			Common.SaveResult(backdoorResult)
 		}
 
-		// Shellcode 利用部分保持不变
+		// 系统检查处理部分
 		if Common.Shellcode != "" {
-			defer MS17010EXP(info)
+			defer SystemVulnProcessor(info)
 		}
 	} else if os != "" {
 		Common.LogBase(fmt.Sprintf("系统信息 %s [%s]", ip, os))

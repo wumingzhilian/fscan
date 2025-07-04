@@ -3,13 +3,14 @@ package Plugins
 import (
 	"context"
 	"fmt"
-	"github.com/shadow1ng/fscan/Common"
-	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/shadow1ng/fscan/Common"
+	"golang.org/x/crypto/ssh"
 )
 
 // SshCredential 表示一个SSH凭据
@@ -79,13 +80,13 @@ func SshScan(info *Common.HostInfo) error {
 			return
 		}
 
-		// 否则使用密码爆破
+		// 否则使用凭据验证
 		credentials := generateCredentials(Common.Userdict["ssh"], Common.Passwords)
 		Common.LogDebug(fmt.Sprintf("开始尝试用户名密码组合 (总用户数: %d, 总密码数: %d, 总组合数: %d)",
 			len(Common.Userdict["ssh"]), len(Common.Passwords), len(credentials)))
 
-		// 使用工作池并发扫描
-		result := concurrentSshScan(globalCtx, info, credentials, Common.Timeout, Common.MaxRetries, Common.ModuleThreadNum)
+		// 使用工作池并发验证
+		result := concurrentSshValidation(globalCtx, info, credentials, Common.Timeout, Common.MaxRetries, Common.ModuleThreadNum)
 		resultChan <- result
 	}()
 
@@ -157,8 +158,8 @@ func generateCredentials(users, passwords []string) []SshCredential {
 	return credentials
 }
 
-// concurrentSshScan 并发扫描SSH服务
-func concurrentSshScan(ctx context.Context, info *Common.HostInfo, credentials []SshCredential, timeout int64, maxRetries, maxThreads int) *SshScanResult {
+// concurrentSshValidation 并发验证SSH服务
+func concurrentSshValidation(ctx context.Context, info *Common.HostInfo, credentials []SshCredential, timeout int64, maxRetries, maxThreads int) *SshScanResult {
 	// 限制并发数
 	if maxThreads <= 0 {
 		maxThreads = 10 // 默认值
